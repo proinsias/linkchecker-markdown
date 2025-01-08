@@ -34,3 +34,10 @@ line-length = 90
 files = ["src"]
 
 ignore_missing_imports = true
+
+[tool.codespell]
+# Ref: https://github.com/codespell-project/codespell#using-a-config-file
+skip = '.git'
+check-hidden = true
+# ignore-regex = ''
+# ignore-words-list = ''
