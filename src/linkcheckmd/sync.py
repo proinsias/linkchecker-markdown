@@ -30,9 +30,9 @@ def check_urls(
     hdr: dict[str, str] | None = None,
     ssl_verify: bool = False,
     recurse: bool = False,
-) -> list[tuple[str, str, T.Any]]:
+) -> list[tuple[Path, str, T.Any]]:
 
-    bads: list[tuple[str, str, T.Any]] = []
+    bads: list[tuple[Path, str, T.Any]] = []
 
     glob = re.compile(regex)
 
@@ -45,7 +45,7 @@ def check_urls(
         # %% loop
         for fn in files.get(path, ext, recurse):
             for bad in check_url(fn, glob, ext, sess, hdr, ssl_verify):
-                print("\n", bad)
+                print("\n", bad[0], bad[1], bad[2])
                 bads.append(bad)
 
     warnings.resetwarnings()
@@ -60,7 +60,7 @@ def check_url(
     sess,
     hdr: dict[str, str] | None = None,
     ssl_verify: bool = False,
-) -> T.Iterable[tuple[str, str, T.Any]]:
+) -> T.Iterable[tuple[Path, str, T.Any]]:
 
     urls = glob.findall(fn.read_text(errors="ignore"))
 
@@ -73,19 +73,19 @@ def check_url(
                 if retry(url, hdr, ssl_verify):
                     continue
                 else:
-                    yield fn.name, url, R.status_code
+                    yield fn, url, R.status_code
                     continue
         except OKE:
             continue
         except EXC as e:
             if retry(url, hdr, ssl_verify):
                 continue
-            yield fn.name, url, str(e)
+            yield fn, url, str(e)
             continue
 
         code = R.status_code
         if code != 200:
-            yield fn.name, url, code
+            yield fn, url, code
         else:
             logging.info(f"OK: {url:80s}")
 

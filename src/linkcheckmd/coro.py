@@ -29,7 +29,7 @@ async def check_urls(
     method: str = "get",
     recurse: bool = False,
     ssl_verify: bool = True,
-) -> list[tuple[str, str, T.Any]]:
+) -> list[tuple[Path, str, T.Any]]:
 
     glob = re.compile(regex)
 
@@ -59,11 +59,11 @@ async def check_url(
     *,
     method: str = "get",
     ssl_verify: bool = True,
-) -> list[tuple[str, str, T.Any]]:
+) -> list[tuple[Path, str, T.Any]]:
 
     urls = glob.findall(fn.read_text(errors="ignore"))
-    logging.debug(fn.name, " ".join(urls))
-    bad: list[tuple[str, str, T.Any]] = []
+    logging.debug(fn, " ".join(urls))
+    bad: list[tuple[Path, str, T.Any]] = []
 
     timeout = aiohttp.ClientTimeout(total=TIMEOUT)
 
@@ -88,12 +88,12 @@ async def check_url(
         except OKE:
             continue
         except EXC as e:
-            bad.append((fn.name, url, e))  # e, not str(e)
+            bad.append((fn, url, e))  # e, not str(e)
             print("\n", bad[-1])
             continue
 
         if code != 200:
-            bad.append((fn.name, url, code))
+            bad.append((fn, url, code))
             print("\n", bad[-1])
         else:
             logging.info(f"OK: {url:80s}")

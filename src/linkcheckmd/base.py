@@ -28,9 +28,9 @@ def check_links(
     if local and recurse:
         logging.error("'recurse' currently works only for remote links.")
 
-    for missing_file in check_local(path, ext=ext):
+    for mf, mu in check_local(path, ext=ext):
         # to get an iterable/list of these, call check_local directly from your program
-        print(missing_file)
+        print(mf, mu)
 
     bad = None
     if not local:
@@ -48,7 +48,7 @@ def check_links(
     return bad
 
 
-def check_local(path: Path, ext: str) -> T.Iterable[tuple[str, str]]:
+def check_local(path: Path, ext: str) -> T.Iterable[tuple[Path, str]]:
     """check internal links of Markdown files
     this is a simple static analysis; only plain filename references are handled.
     """
@@ -71,7 +71,7 @@ def check_local(path: Path, ext: str) -> T.Iterable[tuple[str, str]]:
             if not url[0] == "/":
                 if {"/", "."}.intersection(stem):
                     continue
-                yield fn.name, url
+                yield fn, url
                 continue
 
             if {"/", "."}.intersection(stem):
@@ -82,7 +82,7 @@ def check_local(path: Path, ext: str) -> T.Iterable[tuple[str, str]]:
                 or (path.parent / (stem + ext)).is_file()
                 or (path / stem).is_dir()
             ):
-                yield fn.name, url
+                yield fn, url
 
 
 def check_remotes(
@@ -95,7 +95,7 @@ def check_remotes(
     use_async: bool = True,
     recurse: bool = False,
     ssl_verify: bool = True,
-) -> list[tuple[str, str, T.Any]]:
+) -> list[tuple[Path, str, T.Any]]:
     if domain:
         pat = "https?://" + domain + r"[=a-zA-Z0-9\_\/\?\&\%\+\#\.\-]*"
     else:
