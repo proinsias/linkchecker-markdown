@@ -13,7 +13,7 @@ TIMEOUT = 10
 RETRYCODES = (400, 404, 405, 503)
 # multiple exceptions must be tuples, not lists in general
 
-OKE = requests.exceptions.TooManyRedirects  
+OKE = requests.exceptions.TooManyRedirects
 # FIXME: until full browser like Arsenic implemented
 
 EXC = (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError)
