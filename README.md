@@ -1,15 +1,16 @@
-# Linkchecker for Markdown-based static generated sites
+# Linkchecker for Markdown
 
-![Actions Status](https://github.com/scivision/linkchecker-markdown/workflows/ci/badge.svg)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/scivision/linkchecker-markdown.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/scivision/linkchecker-markdown/context:python)
-[![pypi versions](https://img.shields.io/pypi/pyversions/linkcheckmd.svg)](https://pypi.python.org/pypi/linkcheckmd)
-[![PyPi Download stats](http://pepy.tech/badge/linkcheckmd)](http://pepy.tech/project/linkcheckmd)
+[![ci](https://github.com/scivision/linkchecker-markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/scivision/linkchecker-markdown/actions/workflows/ci.yml)
+[![PyPI Download stats](http://pepy.tech/badge/linkcheckmd)](http://pepy.tech/project/linkcheckmd)
 
-Blazing-fast (10000 Markdown files per second) Python asyncio / [aiohttp](https://docs.aiohttp.org/)
-based simple check of links in Markdown .md files only.
-This tool is very helpful for large Markdown-based Jekyll and Hugo sites as
-well as Markdown-based [MkDocs](https://www.mkdocs.org/) documentation projects.
-It is very fast and simple--it's what we use to check https://www.scivision.dev
+Blazing-fast (10000 Markdown files per second) Python asyncio using the high-level
+[aiohttp](https://docs.aiohttp.org/)
+library.
+Simple check of links in Markdown .md files only.
+This tool is very helpful for statically generated Markdown-based sites (e.g. Jekyll and Hugo).
+Markdown-based
+[MkDocs](https://www.mkdocs.org/)
+documentation projects can also benefit.
 
 ## Install
 
@@ -24,7 +25,7 @@ or for latest development version.
 ```sh
 git clone https://github.com/scivision/linkchecker-markdown
 
-pip install -e linkchecker-markdown
+pip install -e ./linkchecker-markdown
 ```
 
 ## Usage
@@ -56,13 +57,7 @@ lc.check_links("~/web")
 
 ### Command-line
 
-This program may be invoked by either:
-
-```sh
-linkcheckMarkdown
-```
-
-or
+This program may be invoked:
 
 ```sh
 python -m linkcheckmd

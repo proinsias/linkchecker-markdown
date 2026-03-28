@@ -9,6 +9,7 @@ linkcheckMarkdown ~/myJekyllsite/_posts
 import argparse
 import logging
 import time
+import json
 
 from .base import check_links
 
@@ -30,10 +31,14 @@ def main():
         help="head is faster but gives false positives. Get is reliable but slower",
         default="get",
     )
+    p.add_argument("--headers", help="add custom headers dictionary", type=json.loads)
     p.add_argument("-v", "--verbose", action="store_true")
     p.add_argument("--sync", help="don't use asyncio", action="store_true")
     p.add_argument("-local", help="only check local files", action="store_true")
-    p.add_argument("-r", "--recurse", help="recurse directories under path", action="store_true")
+    p.add_argument(
+        "-r", "--recurse", help="recurse directories under path", action="store_true"
+    )
+    p.add_argument("-noverify", help="don't verify SSL certificates", action="store_true")
     P = p.parse_args()
 
     if P.verbose:
@@ -45,9 +50,11 @@ def main():
         ext=P.ext,
         domain=P.domain,
         method=P.method,
+        hdr=P.headers,
         use_async=not P.sync,
         local=P.local,
         recurse=P.recurse,
+        ssl_verify=not P.noverify,
     )
 
     print(f"{time.monotonic() - tic:0.3} seconds to check links")

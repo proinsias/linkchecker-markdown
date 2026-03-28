@@ -24,15 +24,19 @@ TIMEOUT = 10
 async def check_urls(
     path: Path,
     regex: str,
-    ext: str,
-    hdr: dict[str, str] = None,
+    ext: str = ".md",
+    hdr: dict[str, str] | None = None,
     method: str = "get",
     recurse: bool = False,
-) -> list[tuple[str, str, T.Any]]:
+    ssl_verify: bool = True,
+) -> list[tuple[Path, str, T.Any]]:
 
     glob = re.compile(regex)
 
-    tasks = [check_url(fn, glob, ext, hdr, method=method) for fn in files.get(path, ext, recurse)]
+    tasks = [
+        check_url(fn, glob, ext, hdr, method=method, ssl_verify=ssl_verify)
+        for fn in files.get(path, ext, recurse)
+    ]
 
     warnings.simplefilter("ignore")
 
@@ -48,12 +52,18 @@ async def check_urls(
 
 
 async def check_url(
-    fn: Path, glob, ext: str, hdr: dict[str, str] = None, *, method: str = "get"
-) -> list[tuple[str, str, T.Any]]:
+    fn: Path,
+    glob,
+    ext: str,
+    hdr: dict[str, str] | None = None,
+    *,
+    method: str = "get",
+    ssl_verify: bool = True,
+) -> list[tuple[Path, str, T.Any]]:
 
     urls = glob.findall(fn.read_text(errors="ignore"))
-    logging.debug(fn.name, " ".join(urls))
-    bad: list[tuple[str, str, T.Any]] = []
+    logging.debug(fn, " ".join(urls))
+    bad: list[tuple[Path, str, T.Any]] = []
 
     timeout = aiohttp.ClientTimeout(total=TIMEOUT)
 
@@ -62,7 +72,11 @@ async def check_url(
             url = url[1:-1]
         try:
             # anti-crawling behavior doesn't like .head() method--.get() is slower but avoids lots of false positives
-            async with aiohttp.ClientSession(headers=hdr, timeout=timeout) as session:
+            async with aiohttp.ClientSession(
+                headers=hdr,
+                timeout=timeout,
+                connector=aiohttp.TCPConnector(ssl=ssl_verify),
+            ) as session:
                 if method == "get":
                     async with session.get(url, allow_redirects=True) as response:
                         code = response.status
@@ -70,16 +84,16 @@ async def check_url(
                     async with session.head(url, allow_redirects=True) as response:
                         code = response.status
                 else:
-                    raise ValueError(f"Unknown retreive method {method}")
+                    raise ValueError(f"Unknown retrieve method {method}")
         except OKE:
             continue
         except EXC as e:
-            bad.append((fn.name, url, e))  # e, not str(e)
+            bad.append((fn, url, e))  # e, not str(e)
             print("\n", bad[-1])
             continue
 
         if code != 200:
-            bad.append((fn.name, url, code))
+            bad.append((fn, url, code))
             print("\n", bad[-1])
         else:
             logging.info(f"OK: {url:80s}")
